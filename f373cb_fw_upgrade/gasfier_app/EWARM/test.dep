@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <fileVersion>4</fileVersion>
+    <fileChecksum>741205650</fileChecksum>
+    <configuration>
+        <name>test</name>
+        <outputs>
+            <file>$PROJ_DIR$\..\Src\stm32f3xx_it.c</file>
+            <file>$PROJ_DIR$\..\Src\sdadc.c</file>
+            <file>$PROJ_DIR$\..\Src\main.c</file>
+            <file>$PROJ_DIR$\..\Src\gpio.c</file>
+            <file>$PROJ_DIR$\..\Src\stm32f3xx_hal_msp.c</file>
+            <file>$PROJ_DIR$\..\Src\sys.c</file>
+            <file>$PROJ_DIR$\..\Src\usart.c</file>
+            <file>$PROJ_DIR$\..\Src\system_stm32f3xx.c</file>
+            <file>$PROJ_DIR$\..\Src\tim.c</file>
+        </outputs>
+    </configuration>
+</project>
