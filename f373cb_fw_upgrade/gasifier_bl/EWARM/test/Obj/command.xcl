@@ -1,24 +1,24 @@
-"C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Src\command.c"
+"C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Src\command.c"
 -std=c11
 -ferror-limit=0
 -fbracket-depth=512
 -MD
 -MF
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\test\Obj\command.pbi.dep
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\test\Obj\command.pbi.dep
 -o
 command.pbi
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Src
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Src
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Inc
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Inc
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/CMSIS/Device/ST/STM32F3xx/Include
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/CMSIS/Device/ST/STM32F3xx/Include
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/CMSIS/Include
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM/../Drivers/CMSIS/Include
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\CMSIS\Core\Include
 -I
@@ -28,15 +28,15 @@ C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\inc
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\inc\c
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Inc
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Inc
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\STM32F3xx_HAL_Driver\Inc
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\STM32F3xx_HAL_Driver\Inc
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\STM32F3xx_HAL_Driver\Inc\Legacy
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\STM32F3xx_HAL_Driver\Inc\Legacy
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\CMSIS\Device\ST\STM32F3xx\Include
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\CMSIS\Device\ST\STM32F3xx\Include
 -I
-C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\CMSIS\Include
+C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\Drivers\CMSIS\Include
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\CMSIS\Core\Include
 -I

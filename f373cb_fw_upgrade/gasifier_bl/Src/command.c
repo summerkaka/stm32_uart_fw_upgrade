@@ -227,38 +227,43 @@ void CommandHandler(void)
             length = cmd_exec[IDX_LEN];
             if (length != flash.length) {
                 answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, 0x01);
-            }
-            do {
-                if (length - i >= 4) {
-                    flash.data = GetWordL(&cmd_exec[IDX_DATA+i]);
-                    ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address+i, flash.data);
-                    i += 4;
-                } else if (length - i >= 2) {
-                    flash.data = GetShortL(&cmd_exec[IDX_DATA+i]);
-                    ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
-                    i += 2;
-                } else if (length - i == 1) {
-                    flash.data = cmd_exec[IDX_DATA];
-                    flash.data |= 0xff00;
-                    ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
-                    i++;
+            } else {
+                do {
+                    if (length - i >= 4) {
+                        flash.data = GetWordL(&cmd_exec[IDX_DATA+i]);
+                        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address+i, flash.data);
+                        i += 4;
+                    } else if (length - i >= 2) {
+                        flash.data = GetShortL(&cmd_exec[IDX_DATA+i]);
+                        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
+                        i += 2;
+                    } else if (length - i == 1) {
+                        flash.data = cmd_exec[IDX_DATA];
+                        flash.data |= 0xff00;
+                        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
+                        i++;
+                    }
+                } while (length > i && ret == HAL_OK);
+                if (ret != HAL_OK) {
+                    HAL_FLASH_Lock();
                 }
-            } while (length > i && ret == HAL_OK);
-            if (ret != HAL_OK) {
-                HAL_FLASH_Lock();
+                flash.address = (ret == HAL_OK) ? flash.address + i : flash.address;
+                answer(6, k_u8, cmd_rsp, k_u8, 1, k_u8, ret);
             }
-            flash.address = (ret == HAL_OK) ? flash.address + i : flash.address;
-            answer(6, k_u8, cmd_rsp, k_u8, 1, k_u8, ret);
             break;
         case CMD_RESET:
             answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, 0x00);
             NVIC_SystemReset();
             break;
         case CMD_WRITECRC:
-            flash.data = 0x12345678ul;
-            flash.address = FLASH_USER_END_ADDR - 4 + 1;                            // 0x0803ffff -4+1
-            ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address, flash.data);
-            answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, ret);
+            if (((*(__IO uint32_t *)APP_ADDRESS) & 0x2FFE0000) == 0x20000000) {
+                flash.data = 0x12345678ul;
+                flash.address = FLASH_USER_END_ADDR - 4 + 1;                            // 0x0803ffff -4+1
+                ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address, flash.data);
+                answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, ret);
+            } else {
+                answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, 0x01);
+            }
             break;
         case CMD_PROGRAM_END:
             ret = HAL_FLASH_Lock();
@@ -270,7 +275,7 @@ void CommandHandler(void)
                 update_request = 0xaaaaaaaa;
                 __set_MSP(*(__IO uint32_t*)APP_ADDRESS);
                 ((void(*)(void))(*(__IO uint32_t*)(APP_ADDRESS + 4)))();
-            }else {
+            } else {
                 answer(6, k_u8, cmd_rsp, k_u8, 0x01, k_u8, 0x01);
             }
             break;

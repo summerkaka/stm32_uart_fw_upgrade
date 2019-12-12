@@ -20,15 +20,15 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>3822895209</Checksum>
+        <Checksum>1327128951</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
         <StopOnThrow>_ 0</StopOnThrow>
     </Exceptions>
     <Disassembly>
-        <InstrCount>0</InstrCount>
         <MixedMode>1</MixedMode>
+        <InstrCount>0</InstrCount>
     </Disassembly>
     <CodeCoverage>
         <Enabled>0</Enabled>
@@ -127,8 +127,7 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\command.c}.258.13" 0 0 1 "" 0 "" 0</Bp0>
-        <Count>1</Count>
+        <Count>0</Count>
     </Breakpoints2>
     <Aliases>
         <A0>_ "C:\03_workspace\iar\hmb-fd\gasifier_bl\Src\stm32f3xx_it.c" "C:\03_workspace\iar\gasifier_fw_upgrade\gasifier_bl\Src\stm32f3xx_it.c"</A0>

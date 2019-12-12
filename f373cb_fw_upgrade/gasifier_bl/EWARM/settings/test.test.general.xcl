@@ -2,7 +2,7 @@
 
 "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armstlink2.dll" 
 
-"C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\test\Exe\test.out" 
+"C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\test\Exe\test.out" 
 
 --plugin="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armbat.dll" 
 

@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.general.xcl" --backend -f "C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.general.xcl" --backend -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.general.xcl" "--debug_file=%~1" --backend -f "C:\03.workspace\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.general.xcl" "--debug_file=%~1" --backend -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\f373cb_fw_upgrade\gasifier_bl\EWARM\settings\test.test.driver.xcl" 
 
 @echo off 
 :end
