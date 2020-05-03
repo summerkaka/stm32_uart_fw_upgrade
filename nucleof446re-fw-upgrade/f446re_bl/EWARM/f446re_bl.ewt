@@ -1197,7 +1197,7 @@
         <group>
             <name>User</name>
             <file>
-                <name>$PROJ_DIR$\..\Src\command.c</name>
+                <name>$PROJ_DIR$\..\Src\command.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Inc\command.h</name>

@@ -41,6 +41,16 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 
+static bool VerifyAppFlash(void)
+{
+    uint32_t ret = *(uint32_t *)(FLASH_USER_END_ADDR - 3); // crc address
+    if (ret == 0x12345678) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -55,6 +65,11 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
+    if (update_request != 0x55555555 && VerifyAppFlash()) {
+        __set_MSP(*(__IO uint32_t *)APP_ADDRESS);
+        ((void (*)(void))(*(uint32_t *)(APP_ADDRESS + 4)))();
+    }
+
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_USART1_UART_Init();
@@ -62,6 +77,7 @@ int main(void)
     /* Infinite loop */
     while (1)
     {
+        CommandParse();
         CommandHandler();
     }
 }

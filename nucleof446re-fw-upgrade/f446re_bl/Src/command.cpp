@@ -13,11 +13,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "include.h"
 #include "stdarg.h"
+#include <vector>
+#include <deque>
+using namespace std;
 
 
 /* Private macro -------------------------------------------------------------*/
 #define UART        &huart1
-#define BUF_SIZE    64
 #define IDX_CMD     0
 #define IDX_LEN     1
 #define IDX_DATA    2
@@ -42,14 +44,19 @@ typedef struct {
 
 
 /* Private variables ---------------------------------------------------------*/
-bool uart_listen = false;
-static UartSts_t uart_sts = kConsoleIdle;
-uint8_t cmd_recv[BUF_SIZE] = {0};
-uint8_t cmd_exec[BUF_SIZE] = {0};
-uint8_t cmd_transmit[BUF_SIZE] = {0xA5, 0x5A};
+static bool uart_listen = false;
+struct Buf_t rx_buf;
+static vector<char> cmd_recv;
+static uint8_t parse_stat = 0;
+static deque<vector<char>> packet_pool;
+
+static uint8_t cmd_transmit[BUF_SIZE] = {0xA5, 0x5A};
 static uint8_t* const cmd_answer = cmd_transmit + 2;
-static uint8_t widx = 0;
+// static uint8_t widx = 0;
 static uint8_t RxByte = 0;
+
+bool test_mode = false;
+extern uint32_t update_request;
 
 //flash w/r related
 static uint32_t                     page_err = 0;
@@ -63,12 +70,12 @@ static void Console_Listen(void)
     uart_listen = HAL_UART_Receive_IT(UART, &RxByte, 1) == HAL_OK;
 }
 
-static uint16_t crc_calc(uint8_t *msg)
+static uint16_t crc_calc(vector<char> &msg)
 {
     return 0;
 }
 
-static bool crc_check(uint8_t *msg)
+static bool crc_check(vector<char> &msg)
 {
     return true;
 }
@@ -76,89 +83,30 @@ static bool crc_check(uint8_t *msg)
 static uint8_t answer(uint8_t num, ...)
 {
     va_list valist;
-    int8_t i = 0, widx = 0;
-    dtype_t dtype = k_u8;
-    uint64_t data;
-    union_data32_t data32;
-    union_data64_t data64;
+    int8_t i = 0;
+    int data;
 
     va_start(valist, num);
-
     for (; i < num; i++) {
-        if (i % 2 == 0) {
-            dtype = va_arg(valist, dtype_t);
-        } else {
-            switch (dtype) {
-            case k_u8:
-                cmd_answer[widx++] = va_arg(valist, int);
-                break;
-            case k_u16:
-                data = va_arg(valist, int);
-                WriteShortH(cmd_answer+widx, data);
-                widx += 2;
-                break;
-            case k_u32:
-                data = va_arg(valist, int);
-                WriteWordH(cmd_answer+widx, data);
-                widx += 4;
-                break;
-            case k_u64:
-                data = va_arg(valist, uint64_t);
-                WriteDWordH(cmd_answer+widx, data);
-                widx += 8;
-                break;
-            case k_f32:
-                data32.d_float = va_arg(valist, double);
-                WriteWordH(cmd_answer+widx, data32.d_uint32);
-                widx += 4;
-                break;
-            case k_f64:
-                data64.d_double = va_arg(valist, double);
-                WriteDWordH(cmd_answer+widx, data64.d_uint64);
-                widx += 8;
-                break;
-            default : break;
-            }
-        }
+        data = va_arg(valist, int);
+        cmd_answer[i] = data;
     }
     va_end(valist);
-    WriteShortH(&cmd_answer[widx], 0x0000); // write crc
-    widx += 2;
-    WriteShortH(&cmd_answer[widx], 0x0d0a); // write frame-end-symbol
-    widx += 2;
-    i = HAL_UART_Transmit(UART, cmd_transmit, widx + 2, 0x1000);
-    memset(cmd_answer, 0, widx);
+    WriteShortH(&cmd_answer[i], 0x0000); // write crc
+    i += 2;
+    WriteShortH(&cmd_answer[i], 0x0d0a); // write frame-end-symbol
+    i += 2;
+    i= HAL_UART_Transmit(UART, cmd_transmit, i+2, 0xffff);
     return i;
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    switch (uart_sts) {
-    case kConsoleIdle:
-        if (RxByte == 0xA5)
-            uart_sts = kConsoleReady;
-        break;
-    case kConsoleReady:
-        if (RxByte == 0x5A)
-            uart_sts = kConsoleRecv;
-        else
-            uart_sts = kConsoleIdle;
-        break;
-    case kConsoleRecv:
-        cmd_recv[widx++] = RxByte;
-        if (widx > IDX_LEN && widx >= cmd_recv[IDX_LEN] + 2) {
-            uart_sts = kConsoleCplt;
-            widx = 0;
-        } else if (widx >= BUF_SIZE) {
-            cmd_recv[IDX_LEN] = 0;
-            uart_sts = kConsoleIdle;
-            widx = 0;
-        }
-        break;
-    case kConsoleCplt:      // 'lock' status. in main loop it handle the cmd and unlock the sts to 'idle'
-        break;
-    default : break;
+     if (rx_buf.r_idx - rx_buf.w_idx == 1 || (rx_buf.r_idx == 0 && rx_buf.w_idx == BUF_SIZE-1)) { // buffer full
+        return;
     }
+    rx_buf.buf[rx_buf.w_idx++] = RxByte;
+    rx_buf.w_idx = rx_buf.w_idx >= BUF_SIZE ? 0 : rx_buf.w_idx;
 
     Console_Listen();
 }
@@ -178,67 +126,95 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //     memset(cmd_answer, 0, payload_len+4);
 // }
 
+
+void CommandParse(void)
+{
+    while (rx_buf.r_idx != rx_buf.w_idx) {  // not empty
+
+        if (parse_stat == 0) {
+            if (rx_buf.buf[rx_buf.r_idx] == 0xa5) {
+                parse_stat = 1;
+            }
+        } else if (parse_stat == 1) {
+            parse_stat = rx_buf.buf[rx_buf.r_idx] == 0x5a ? 2 : 0;
+        } else if (parse_stat == 2) {
+            cmd_recv.push_back(rx_buf.buf[rx_buf.r_idx]);
+            if (cmd_recv.size() > IDX_LEN && cmd_recv.size() == 2 + cmd_recv[IDX_LEN] + 4) { // cmd(1) + dlc(1) + payload + crc(2) + eof(2)
+                if (cmd_recv.at(cmd_recv.size()-2) == 0x0d && cmd_recv.at(cmd_recv.size()-1) == 0x0a) {
+                    packet_pool.push_back(cmd_recv);
+                }
+                parse_stat = 0;
+                cmd_recv.clear();
+            }
+        }
+        rx_buf.r_idx = ++rx_buf.r_idx >= BUF_SIZE ? 0 : rx_buf.r_idx;
+    }
+}
+
+
 void CommandHandler(void)
 {
-    uint8_t i = 0, ret = HAL_ERROR, cmd_ans;
-    uint8_t length;
+    uint8_t ret=HAL_ERROR, cmd_ans, i=0, length=0;
 
-    if (uart_sts == kConsoleCplt) {
-        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-        memcpy(cmd_exec, cmd_recv, cmd_recv[IDX_LEN]+2);
-        cmd_recv[IDX_LEN] = 0;
-        uart_sts = kConsoleIdle;
+    if (uart_listen == false)
+        Console_Listen();
 
-        if (crc_check(cmd_exec) == false)
-            goto FINISH;
+    if (packet_pool.empty())
+        return;
 
-        cmd_ans = cmd_exec[IDX_CMD] | 0x80;
+    for (vector<char> cmd : packet_pool) {
 
-        switch (cmd_exec[IDX_CMD]) {
+        if (crc_check(cmd) == false)
+            continue;
+
+        cmd_ans = cmd[IDX_CMD] | 0x80;
+
+        switch (cmd[IDX_CMD]) {
         case CMD_PING:
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0x01);
+            answer(3, cmd_ans, 0x01, 0x01);
             break;
         case CMD_FWUPDATE_PING:
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0xa5);
+            answer(3, cmd_ans, 0x01, 0xa5);
             break;
         case CMD_ASK_APPAREA:
-            answer(8, k_u8, cmd_ans, k_u8, 0x08, k_u32, FLASH_USER_START_ADDR, k_u32, FLASH_USER_END_ADDR);
+            answer(10, cmd_ans, 0x08, FLASH_USER_START_ADDR, FLASH_USER_START_ADDR>>8, FLASH_USER_START_ADDR>>16, FLASH_USER_START_ADDR>>24,
+                                  FLASH_USER_END_ADDR, FLASH_USER_END_ADDR>>8, FLASH_USER_END_ADDR>>16, FLASH_USER_END_ADDR>>24);
             break;
         case CMD_PROGRAM_START:
             if ((ret = HAL_FLASH_Unlock()) == HAL_OK) {
                 erase_init.TypeErase   = FLASH_TYPEERASE_SECTORS;
                 erase_init.Sector = FLASH_SECTOR_2;
-                erase_init.NbSectors = 6;   
+                erase_init.NbSectors = 6;
                 ret = HAL_FLASHEx_Erase(&erase_init, &page_err);
             }
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, ret);
+            answer(3, cmd_ans, 0x01, ret);
             break;
         case CMD_DLD:
-            flash.address = GetWordL(&cmd_exec[IDX_DATA]);
-            flash.length = GetWordL(&cmd_exec[IDX_DATA+4]);
+            flash.address = GetWordL(&cmd[IDX_DATA]);
+            flash.length = GetWordL(&cmd[IDX_DATA+4]);
             if (flash.address < FLASH_USER_START_ADDR || flash.address + flash.length > FLASH_USER_END_ADDR)
                 ret = 0x01;
             else
                 ret = 0x00;
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, ret);
+            answer(3, cmd_ans, 0x01, ret);
             break;
         case CMD_SEND_DATA:
             i = 0;
-            length = cmd_exec[IDX_LEN];
+            length = cmd[IDX_LEN];
             if (length != flash.length) {
-                answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0x01);
+                answer(3, cmd_ans, 0x01, 0x01);
             }
             do {
                 if (length - i >= 4) {
-                    flash.data = GetWordL(&cmd_exec[IDX_DATA+i]);
+                    flash.data = GetWordL(&cmd[IDX_DATA+i]);
                     ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address+i, flash.data);
                     i += 4;
                 } else if (length - i >= 2) {
-                    flash.data = GetShortL(&cmd_exec[IDX_DATA+i]);
+                    flash.data = GetShortL(&cmd[IDX_DATA+i]);
                     ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
                     i += 2;
                 } else if (length - i == 1) {
-                    flash.data = cmd_exec[IDX_DATA];
+                    flash.data = cmd[IDX_DATA];
                     flash.data |= 0xff00;
                     ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flash.address + i, flash.data);
                     i++;
@@ -248,38 +224,38 @@ void CommandHandler(void)
                 HAL_FLASH_Lock();
             }
             flash.address = (ret == HAL_OK) ? flash.address + i : flash.address;
-            answer(6, k_u8, cmd_ans, k_u8, 1, k_u8, ret);
+            answer(3, cmd_ans, 1, ret);
             break;
         case CMD_RESET:
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0x00);
+            answer(3, cmd_ans, 0x01, 0x00);
             NVIC_SystemReset();
             break;
         case CMD_WRITECRC:
-            flash.data = GetWordL(&cmd_exec[IDX_DATA]);
+            flash.data = GetWordL(&cmd[IDX_DATA]);
             flash.address = FLASH_USER_END_ADDR - 4 + 1;                            // 0x0803ffff -4+1
             ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flash.address, flash.data);
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, ret);
+            answer(3, cmd_ans, 0x01, ret);
             break;
         case CMD_PROGRAM_END:
             ret = HAL_FLASH_Lock();
-            answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, ret);
+            answer(3, cmd_ans, 0x01, ret);
             break;
         case CMD_JUMPTOAPP:
             if (((*(__IO uint32_t *)APP_ADDRESS) & 0x2FFE0000) == 0x20000000) {
                 HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-                answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0);
+                answer(3, cmd_ans, 0x01, 0);
                 update_request = 0xaaaaaaaa;
                 __set_MSP(*(__IO uint32_t*)APP_ADDRESS);
                 ((void(*)(void))(*(__IO uint32_t*)(APP_ADDRESS + 4)))();
             }else {
-                answer(6, k_u8, cmd_ans, k_u8, 0x01, k_u8, 0x01);
+                answer(3, cmd_ans, 0x01, 0x01);
             }
             break;
-        default : break;
+        default :
+            answer(3, 0xff, 0x01, 0xff);
+            break;
         }
-
-FINISH:
-        uart_sts = kConsoleIdle;
+        packet_pool.pop_front();
     }
 
     if (uart_listen == false)

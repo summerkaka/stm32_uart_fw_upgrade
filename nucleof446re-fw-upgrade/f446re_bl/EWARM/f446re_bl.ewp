@@ -405,7 +405,7 @@
                 </option>
                 <option>
                     <name>IccLang</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>IccCDialect</name>
@@ -1068,7 +1068,7 @@
         <group>
             <name>User</name>
             <file>
-                <name>$PROJ_DIR$\..\Src\command.c</name>
+                <name>$PROJ_DIR$\..\Src\command.cpp</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Inc\command.h</name>

@@ -2,7 +2,7 @@
 
 "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armstlink2.dll" 
 
-"C:\03_workspace\iar\nucleof446re-fw-upgrade\f446re_bl\EWARM\f446re_bl\Exe\f446re_bl.out" 
+"C:\03_workspace\iar\stm32_uart_fw_upgrade\nucleof446re-fw-upgrade\f446re_bl\EWARM\f446re_bl\Exe\f446re_bl.out" 
 
 --plugin="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\arm\bin\armbat.dll" 
 

@@ -101,24 +101,12 @@
 
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum {
-    k_u8 = 1,
-    k_u16,
-    k_u32,
-    k_u64,
-    k_f32,
-    k_f64
-} dtype_t;
-
-typedef union {
-    uint32_t d_uint32;
-    float    d_float;
-} union_data32_t;
-
-typedef union {
-    uint64_t d_uint64;
-    double   d_double;
-} union_data64_t;
+#define BUF_SIZE 32
+struct Buf_t {
+    uint8_t buf[BUF_SIZE];
+    uint8_t w_idx;
+    uint8_t r_idx;
+};
 
 
 /* Exported constants --------------------------------------------------------*/
@@ -142,6 +130,7 @@ extern uint32_t update_request;
 
 
 /* Exported functions ------------------------------------------------------- */
+void CommandParse(void);
 void CommandHandler(void);
 
 

@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.general.xcl" --backend -f "C:\03_workspace\iar\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.general.xcl" --backend -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.general.xcl" "--debug_file=%~1" --backend -f "C:\03_workspace\iar\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3\common\bin\cspybat" -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.general.xcl" "--debug_file=%~1" --backend -f "C:\03_workspace\iar\stm32_uart_fw_upgrade\nucleof446re-fw-upgrade\f446re_bl\EWARM\settings\f446re_bl.f446re_bl.driver.xcl" 
 
 @echo off 
 :end
