@@ -11,8 +11,10 @@ CFLAGS = -g -Wall -O0 -I${INC_PATH}
 
 SRC = $(wildcard ${SRC_PATH}/*.c)
 # SRC = $(shell find ./ -name "*.c")
-HEADER= $(wildcard $(INC_PATH)/*.h)
-OBJ = $(patsubst %.c, $(OBJ_PATH)/%.o, $(notdir ${SRC})) # use notdir: remove dir info in SRC, eg: './src/fw-update.c' --> 'fw-update.c'
+HEADER= $(wildcard $(INC_PATH)/*.h)							#展开匹配此模式的所有文件 用空格分开
+OBJ = $(patsubst %.c, $(OBJ_PATH)/%.o, $(notdir ${SRC})) 	# patsubst <pattern>,<replacement>,<text> 
+															# 查找<text>中的单词（单词以“空格”、“Tab”或“回车”“换行”分隔）是否符合模式<pattern>，如果匹配的话，则以<replacement>替换
+															# use notdir: remove dir info in SRC, eg: './src/fw-update.c' --> 'fw-update.c'
 #OBJ = $(SOURCE_LIST:%.c=%.o)
 
 ${TARGET} : $(OBJ) 
